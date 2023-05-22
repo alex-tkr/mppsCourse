@@ -8,7 +8,7 @@ import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-public class DAOTeamsImplPostgres implements DAOTeams{
+public class DAOTeamsImplPostgres extends UtilsForCon implements DAOTeams{
 
     private final String getTeam="Select * FROM public.\"API_team\" WHERE id=?";
     private final String createTeam="INSERT INTO public.\"API_team\" (name,description,created_at) VALUES (?,?,?) RETURNING id";
@@ -148,7 +148,7 @@ public class DAOTeamsImplPostgres implements DAOTeams{
         try {
             con = PostgresConnectionPool.getConnection();
             prst=con.prepareStatement(updateUserRole);
-            prst.setObject(1, idRole);
+            prst.setString(1, idRole.toString());
             prst.setInt(2, idMember);
             prst.executeUpdate();
         } catch (SQLException e) {
@@ -163,22 +163,10 @@ public class DAOTeamsImplPostgres implements DAOTeams{
         }
     }
 
-    @Override
-    public List<Member> getAllMembers(int idTeam) {
-        return null;
-    }
 
 
-    public void closeCon(Connection con) throws SQLException {
-        if(con!=null){
-            con.close();
-        }
-    }
-    public void closePrepareState(PreparedStatement prst) throws SQLException {
-        if(prst!=null){
-            prst.close();
-        }
-    }
+
+
 
 
 }

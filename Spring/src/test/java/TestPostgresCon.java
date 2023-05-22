@@ -1,7 +1,6 @@
 
 import org.example.DAO.DAOTeamsImplPostgres;
 import org.example.DBConnection.PostgresConnectionPool;
-import org.example.DBConnection.PostgressSimplCon;
 import org.example.models.Member;
 import org.example.models.Role;
 import org.example.models.Team;
@@ -14,14 +13,10 @@ import java.sql.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestPostgresCon {
-    @BeforeEach
-    public void testConnection(){
-        Connection ds= PostgressSimplCon.getConnection();
-        assertNotNull(ds);
 
-    }
     @Test
     public void testGetTems() throws SQLException {
+
         Connection connection= PostgresConnectionPool.getConnection();
         Statement sta= null;
         try {
@@ -44,6 +39,9 @@ public class TestPostgresCon {
         new DAOTeamsImplPostgres().createTeam("hjtrtytyj","descrip");
         //testGetTems();
     }
+
+
+
     @Test
     public void testDeleteTeam() throws SQLException {
         new DAOTeamsImplPostgres().deleteTeam(2);

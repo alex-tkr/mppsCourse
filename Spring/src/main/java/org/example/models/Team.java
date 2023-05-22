@@ -2,6 +2,7 @@ package org.example.models;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Team {
     public Team(int id, String name, String description, String date_create) {
@@ -15,6 +16,8 @@ public class Team {
     String name;
     String description;
     String date_create;
+    boolean status;
+
 
     public int getId() {
         return id;
@@ -59,15 +62,19 @@ public class Team {
     }
 
     public boolean equals(Team obj) {
-        if(this.id!=obj.id)
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if(this.name!=obj.name)
-            return false;
-        if(this.description!=obj.description)
-            return false;
-        if(this.date_create!=obj.date_create)
-            return false;
-        return true;
+        }
+
+        Team other = (Team) obj;
+        return id == other.id &&
+                Objects.equals(name, other.name) &&
+                Objects.equals(description, other.description) &&
+                Objects.equals(date_create, other.date_create);
     }
 
     @Override
@@ -90,11 +97,11 @@ public class Team {
     }
 
     public Team convertToTeam( Map<String , String> data){
-        this.id=Integer.parseInt(data.get("id"));
-        this.name=data.get("name");
-        this.description=data.get("description");
-        this.date_create=data.get("date_create");
-        return  this;
+        this.id=data.get("id")==null?0:Integer.parseInt(data.get("id"));
+        this.name=data.get("name")==null?"":data.get("name");
+        this.description=data.get("description")==null?"":data.get("description");
+        this.date_create=data.get("date_create")==null?"":data.get("date_create");
+        return this;
     }
 
 }

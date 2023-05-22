@@ -15,5 +15,8 @@ public interface DAOTeams {
      void updateTeamMember(int idMember, Integer idTeam);
      void updateRoleToMember(int idMember, Integer idRole);
 
-     List<Member> getAllMembers(int idTeam);
+
+
+
+
 }

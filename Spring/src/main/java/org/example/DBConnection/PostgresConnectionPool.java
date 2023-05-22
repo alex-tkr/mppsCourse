@@ -2,8 +2,6 @@ package org.example.DBConnection;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -14,6 +12,7 @@ public class PostgresConnectionPool {
 
     private static  BasicDataSource ds;
 
+
     public synchronized static BasicDataSource getDataSource(){
         if (ds==null){
             ds=new BasicDataSource();
@@ -21,14 +20,27 @@ public class PostgresConnectionPool {
         }
         return ds;
     }
-
     public static void setProperties(){
+        String profile="";
+        try (InputStream input = PostgresConnectionPool.class.getClassLoader().getResourceAsStream("application.properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            profile=prop.getProperty("spring.profiles.active");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        try (InputStream input =PostgresConnectionPool.class.getClassLoader().getResourceAsStream("application-"+profile+".properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            ds.setUrl(prop.getProperty("db.url"));
+            ds.setUsername(prop.getProperty("db.username"));
+            ds.setPassword(prop.getProperty("db.password"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
             ds.setMinIdle(5);
             ds.setMaxIdle(10);
             ds.setMaxOpenPreparedStatements(100);
-            ds.setUrl("jdbc:postgresql://localhost:5432/test1");
-            ds.setUsername("postgres");
-            ds.setPassword("root");
             ds.setConnectionProperties("useUnicode=yes;characterEncoding=utf8;");
     };
 
