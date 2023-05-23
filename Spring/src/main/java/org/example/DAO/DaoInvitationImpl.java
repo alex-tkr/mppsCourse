@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
     private final String createInvite="INSERT INTO public.\"Invitations_teams\" (id_team,hash_invite,role,active) VALUES (?,?,?,?) RETURNING hash_invite";
     private final String updateInviteStatus="Update public.\"Invitations_teams\" set active=? WHERE id=?";
-
+    private final String updateInvitedInInvite="Update public.\"Invitations_teams\" set id_inv_id=? WHERE id=?";
     private final String getInviteByHash="Select * FROM public.\"Invitations_teams\" WHERE hash_invite=?";
     private final String getInviteById="Select * FROM public.\"Invitations_teams\" WHERE id=?";
     @Override
@@ -51,6 +51,27 @@ public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
             con = PostgresConnectionPool.getConnection();
             prst=con.prepareStatement(updateInviteStatus);
             prst.setBoolean(1,status);
+            prst.setInt(2,id_invite);
+            prst.executeUpdate();
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closePrepareState(prst);
+                closeCon(con);
+            } catch (SQLException e) {
+
+            }
+        }
+    }
+
+    @Override
+    public void changeInvitedInInvite(int id_invite, int id_member) {
+        Connection con= null;
+        PreparedStatement prst=null;
+        try {
+            con = PostgresConnectionPool.getConnection();
+            prst=con.prepareStatement(updateInvitedInInvite);
+            prst.setInt(1,id_member);
             prst.setInt(2,id_invite);
             prst.executeUpdate();
         } catch (SQLException e) {

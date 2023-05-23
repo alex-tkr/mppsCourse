@@ -5,6 +5,7 @@ import org.example.DAO.DAOTeamsImplPostgres;
 import org.example.DAO.DaoInvitation;
 import org.example.DAO.DaoInvitationImpl;
 import org.example.models.Invitation;
+import org.example.models.Member;
 import org.example.models.Team;
 
 public class TeamService {
@@ -21,9 +22,11 @@ public class TeamService {
         DAOTeams db= new DAOTeamsImplPostgres();
         db.deleteTeam(idTeam);
     }
-    public int createTeamByUser(Team team)  {
+    public int createTeamByUser(Team team, int id_user)  {
         DAOTeams db= new DAOTeamsImplPostgres();
         int idTeam=db.createTeam(team.getName(),team.getDescription());
+        updateMemberRole(id_user,1);
+        updateMemberTeam(id_user,idTeam);
         return idTeam;
     }
 
@@ -38,12 +41,16 @@ public class TeamService {
 
     public void inviteMember(String hashcode,int member){
         //check member on team
-        DaoInvitation daoInv=new DaoInvitationImpl();
-        Invitation invitation =daoInv.getInviteByHashCode(hashcode);
-
-        updateMemberTeam(member,invitation.getTeam());
-        updateMemberRole(member,invitation.getRole());
-        daoInv.changeStatusInvite(invitation.getId(),false);
+        DAOTeams daoTeams =new DAOTeamsImplPostgres();
+        Member member1=daoTeams.getMemberWithRoleTeam(member);
+        if(member1.getTeam()==0) {
+            DaoInvitation daoInv = new DaoInvitationImpl();
+            Invitation invitation = daoInv.getInviteByHashCode(hashcode);
+            updateMemberTeam(member, invitation.getTeam());
+            updateMemberRole(member, invitation.getRole());
+            daoInv.changeStatusInvite(invitation.getId(), false);
+            daoInv.changeInvitedInInvite(invitation.getId(), member);
+        }
     };
 
     public void getInvitationById(int id){};

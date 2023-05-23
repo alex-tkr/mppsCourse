@@ -2,6 +2,9 @@ package org.example.controllers.JWTParse.User;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +26,7 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -36,11 +40,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         //need change code here
+
         httpSecurity
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
                 .anyRequest().authenticated();
+        httpSecurity.cors();
 
         httpSecurity.addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

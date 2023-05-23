@@ -7,4 +7,5 @@ public interface DaoInvitation {
     void changeStatusInvite(int id_invite,boolean status);
     Invitation getInviteByHashCode(String hashcode);
     Invitation getInviteById(int id);
+    void changeInvitedInInvite(int id_invite, int id_member) ;
 }

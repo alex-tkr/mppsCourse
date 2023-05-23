@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@CrossOrigin(maxAge = 3600, allowCredentials = "false")
 @RestController
 @RequestMapping("/teams")
 public class MainController extends TokenFuncImpl{
@@ -36,7 +36,7 @@ public class MainController extends TokenFuncImpl{
         //check role without role
         Team team =new Team();
         team.convertToTeam(info);
-        int id=new TeamService().createTeamByUser(team);
+        int id=new TeamService().createTeamByUser(team,Integer.parseInt(getIdUserFromToken(getToken2())));
         return new HashMap<String, String>(){
             {
                 put("id",id+"");
