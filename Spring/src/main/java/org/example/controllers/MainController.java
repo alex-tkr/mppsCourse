@@ -1,9 +1,12 @@
 package org.example.controllers;
 
+import org.example.DAO.DAOTeamsImplPostgres;
 import org.example.controllers.JWTParse.User.CustomAuthenticationProvider;
 import org.example.controllers.JWTParse.User.CustomAuthenticationToken;
+import org.example.models.Member;
 import org.example.models.Team;
 import org.example.services.TeamService;
+import org.example.services.TelegramBot.BotConfig;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,11 +21,20 @@ public class MainController extends TokenFuncImpl{
     public Map<String , String> Test(){
         System.out.println("toke 2"+getToken2());
         System.out.println("user "+getIdUserFromToken(getToken2()));
+        // https://api.telegram.org/botTOKEN/sendMessage?chat_id=CHAT_ID&text=TEXT
+        // return "redirect:/getUser.do";
         return new HashMap<String, String>(){
             {
                 put("id",5+"");
             }
         };
+    }
+
+    @PostMapping("/test_telegram")
+    public String TestTelegram(BotConfig botConfig,@RequestBody Map<String,String> info){
+       String chatId= info.get("chatId");
+       System.out.println(botConfig.getToken());
+        return "redirect:https://api.telegram.org/"+botConfig.getToken()+"/sendMessage?chat_id="+chatId+"&text=TEXT ";
     }
 
     @GetMapping("/{id}")
@@ -46,21 +58,31 @@ public class MainController extends TokenFuncImpl{
 
     @PostMapping("/updateTeam/{id}")
     public Map<String , String> updateTeam(@RequestBody Map<String,String> info,@PathVariable int id){
-        //check role on admin and moder
-        Team team =new Team();
-        team.convertToTeam(info);
-        new TeamService().updateTeamInfo(team);
+        Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
+        if(member.getRole()==1){
+            Team team =new Team();
+            team.convertToTeam(info);
+            new TeamService().updateTeamInfo(team);
+            return new HashMap<String, String>(){
+                {
+                    put("id",id+"");
+                }
+            };
+        }
         return new HashMap<String, String>(){
             {
-                put("id",id+"");
+                put("error","error");
             }
         };
     }
 
     @DeleteMapping("/{id}")
     public void deleteTeam(@PathVariable int id){
-        //check role on admin
-        new TeamService().deleteTeam(id);
+        Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
+        if(member.getRole()==1){
+            new TeamService().deleteTeam(id);
+        }
+
     }
 
 
@@ -91,18 +113,24 @@ public class MainController extends TokenFuncImpl{
 
     @DeleteMapping("/kikMember")
     public void kickMember(@RequestBody Map<String,String> info){
-        if(info.get("id")!=null){
-            new TeamService().kickMemberFromTeam(Integer.parseInt(info.get("id")));
+        if(info.get("id")!=null&&getIdUserFromTokenInt(getToken2())<=2){
+            Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
+            if(member.getRole()==1||member.getRole()==2){
+                new TeamService().kickMemberFromTeam(Integer.parseInt(info.get("id")));
+            }
         }
     }
 
     @PostMapping("/updateMemberRole")
     public void updateMemberRole(@RequestBody Map<String,String> info){
         if(info.get("id")!=null&&info.get("role")!=null){
-            new TeamService().updateMemberRole(
-                    Integer.parseInt(info.get("id")),
-                    Integer.parseInt(info.get("role"))
-            );
+            Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
+            if(member.getRole()==1||member.getRole()==2){
+                new TeamService().updateMemberRole(
+                        Integer.parseInt(info.get("id")),
+                        Integer.parseInt(info.get("role"))
+                );
+            }
         }
     }
 

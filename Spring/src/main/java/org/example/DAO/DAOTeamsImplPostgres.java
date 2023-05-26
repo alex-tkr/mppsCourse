@@ -2,6 +2,7 @@ package org.example.DAO;
 
 import org.example.DBConnection.PostgresConnectionPool;
 import org.example.models.Member;
+import org.example.models.Role;
 import org.example.models.Team;
 
 import java.sql.*;
@@ -150,7 +151,7 @@ public class DAOTeamsImplPostgres extends UtilsForCon implements DAOTeams{
         try {
             con = PostgresConnectionPool.getConnection();
             prst=con.prepareStatement(updateUserRole);
-            prst.setString(1, idRole.toString());
+            prst.setString(1,idRole==null?"":idRole.toString());
             prst.setInt(2, idMember);
             prst.executeUpdate();
         } catch (SQLException e) {

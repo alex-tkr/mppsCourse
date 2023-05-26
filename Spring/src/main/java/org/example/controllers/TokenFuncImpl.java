@@ -16,4 +16,9 @@ public class TokenFuncImpl {
         String id_user=new CustomAuthenticationProvider().extractUserIdFromToken(token)+"";
         return id_user;
     }
+    public static Integer getIdUserFromTokenInt(String token) {
+        getToken2();
+        String id_user=new CustomAuthenticationProvider().extractUserIdFromToken(token)+"";
+        return Integer.parseInt(id_user);
+    }
 }

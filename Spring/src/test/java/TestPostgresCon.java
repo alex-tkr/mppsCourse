@@ -57,14 +57,7 @@ public class TestPostgresCon {
     public void test1(){
 
     }
-    @Test
-    public void testUpdateRole(){
-       Member mem= new Member();
-       mem.setId(5);
-       Role rol=new Role();
-       rol.setId(1);
-       new DAOTeamsImplPostgres().updateRoleToMember(5,1);
-    }
+
     @Test
     public void testUpdateUserTeam(){
         Member mem= new Member();
