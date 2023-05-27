@@ -8,11 +8,11 @@ import java.sql.*;
 import java.time.OffsetDateTime;
 
 public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
-    private final String createInvite="INSERT INTO public.\"Invitations_teams\" (id_team,hash_invite,role,active) VALUES (?,?,?,?) RETURNING hash_invite";
-    private final String updateInviteStatus="Update public.\"Invitations_teams\" set active=? WHERE id=?";
-    private final String updateInvitedInInvite="Update public.\"Invitations_teams\" set id_inv_id=? WHERE id=?";
-    private final String getInviteByHash="Select * FROM public.\"Invitations_teams\" WHERE hash_invite=?";
-    private final String getInviteById="Select * FROM public.\"Invitations_teams\" WHERE id=?";
+    private final String createInvite="INSERT INTO public.\"project_invite_team\" (id_team_id,hash_code,role,accept,id_inv_id) VALUES (?,?,?,?,?) RETURNING hash_code";
+    private final String updateInviteStatus="Update public.\"project_invite_team\" set accept=? WHERE id=?";
+    private final String updateInvitedInInvite="Update public.\"project_invite_team\" set id_inv_id=? WHERE id=?";
+    private final String getInviteByHash="Select * FROM public.\"project_invite_team\" WHERE hash_code=?";
+    private final String getInviteById="Select * FROM public.\"project_invite_team\" WHERE id=?";
     @Override
     public String createInvite(Invitation invitation) {
         Connection con= null;
@@ -25,6 +25,7 @@ public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
             prst.setString(2, invitation.getHashcode());
             prst.setInt(3, invitation.getRole());
             prst.setBoolean(4, invitation.isActive());
+            prst.setInt(5, invitation.getIdInv());
             prst.executeUpdate();
             ResultSet rs = prst.getGeneratedKeys();
             if (rs.next()) {

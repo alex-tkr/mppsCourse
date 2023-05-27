@@ -11,6 +11,15 @@ public class Invitation {
     int team;
     int role;
     boolean active;
+    int idInv;
+
+    public int getIdInv() {
+        return idInv;
+    }
+
+    public void setIdInv(int idInv) {
+        this.idInv = idInv;
+    }
 
     public Invitation() {
     }

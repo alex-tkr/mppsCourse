@@ -4,6 +4,7 @@ import org.example.DAO.DAOTeamsImplPostgres;
 import org.example.controllers.JWTParse.User.CustomAuthenticationProvider;
 import org.example.controllers.JWTParse.User.CustomAuthenticationToken;
 import org.example.models.Member;
+import org.example.models.RoleOnSite;
 import org.example.models.Team;
 import org.example.services.TeamService;
 import org.example.services.TelegramBot.BotConfig;
@@ -45,10 +46,9 @@ public class MainController extends TokenFuncImpl{
 
     @PostMapping("/createTeam")
     public Map<String , String> createTeam(@RequestBody Map<String,String> info){
-        //check role without role
         Team team =new Team();
         team.convertToTeam(info);
-        int id=new TeamService().createTeamByUser(team,Integer.parseInt(getIdUserFromToken(getToken2())));
+        int id=new TeamService().createTeamByUser(team,getIdUserFromTokenInt(getToken2()));
         return new HashMap<String, String>(){
             {
                 put("id",id+"");
@@ -59,9 +59,10 @@ public class MainController extends TokenFuncImpl{
     @PostMapping("/updateTeam/{id}")
     public Map<String , String> updateTeam(@RequestBody Map<String,String> info,@PathVariable int id){
         Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
-        if(member.getRole()==1){
+        if(member.getRole()==RoleOnSite.ADMIN||member.getRole()==RoleOnSite.MANAGER){
             Team team =new Team();
             team.convertToTeam(info);
+            team.setId(id);
             new TeamService().updateTeamInfo(team);
             return new HashMap<String, String>(){
                 {
@@ -69,17 +70,19 @@ public class MainController extends TokenFuncImpl{
                 }
             };
         }
+
         return new HashMap<String, String>(){
             {
                 put("error","error");
             }
         };
+
     }
 
     @DeleteMapping("/{id}")
     public void deleteTeam(@PathVariable int id){
         Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
-        if(member.getRole()==1){
+        if(member.getRole()==RoleOnSite.ADMIN){
             new TeamService().deleteTeam(id);
         }
 
@@ -88,34 +91,47 @@ public class MainController extends TokenFuncImpl{
 
     @PostMapping("/create_invite")
     public Map<String , String> createInvite(@RequestBody Map<String,String> info){
-        if(info.get("id_team")==null||info.get("id_role")==null)
+        Member user= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
+        if(
+                info.get("id_team")==null||
+                info.get("id_role")==null||
+                info.get("id_inv_id")==null
+        )
             return new HashMap<String, String>(){
                 {
-                    put("error",123+"");
+                    put("error","value of data not found");
                 }
             };
-
-        String hashcode=new TeamService().createInvitation(
-                Integer.parseInt(info.get("id_team")),
-                Integer.parseInt(info.get("id_role"))
-        );
+        if(user.getRole()==RoleOnSite.ADMIN||user.getRole()==RoleOnSite.MANAGER){
+            String hashcode=new TeamService().createInvitation(
+                    Integer.parseInt(info.get("id_team")),
+                    Integer.parseInt(info.get("id_role")),
+                    Integer.parseInt(info.get("id_inv_id"))
+            );
+            return new HashMap<String, String>(){
+                {
+                    put("hashcode",hashcode+"");
+                }
+            };
+        }
         return new HashMap<String, String>(){
             {
-                put("hashcode",hashcode+"");
+                put("hashcode","you not admin of manager");
             }
         };
+
     }
 
     @PostMapping("/invite/{hashcode}")
     public void inviteMember(@PathVariable String hashcode){
-        new TeamService(). inviteMember(hashcode,Integer.parseInt(getIdUserFromToken(getToken2())));
+        new TeamService(). inviteMember(hashcode,getIdUserFromTokenInt(getToken2()));
     }
 
     @DeleteMapping("/kikMember")
     public void kickMember(@RequestBody Map<String,String> info){
-        if(info.get("id")!=null&&getIdUserFromTokenInt(getToken2())<=2){
+        if(info.get("id")!=null){
             Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
-            if(member.getRole()==1||member.getRole()==2){
+            if(member.getRole()==RoleOnSite.ADMIN||member.getRole()==RoleOnSite.MANAGER){
                 new TeamService().kickMemberFromTeam(Integer.parseInt(info.get("id")));
             }
         }
@@ -125,7 +141,7 @@ public class MainController extends TokenFuncImpl{
     public void updateMemberRole(@RequestBody Map<String,String> info){
         if(info.get("id")!=null&&info.get("role")!=null){
             Member member= new DAOTeamsImplPostgres().getMemberWithRoleTeam(getIdUserFromTokenInt(getToken2()));
-            if(member.getRole()==1||member.getRole()==2){
+            if(member.getRole()== RoleOnSite.ADMIN ||member.getRole()==RoleOnSite.MANAGER){
                 new TeamService().updateMemberRole(
                         Integer.parseInt(info.get("id")),
                         Integer.parseInt(info.get("role"))

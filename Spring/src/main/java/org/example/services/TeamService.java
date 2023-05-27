@@ -6,6 +6,7 @@ import org.example.DAO.DaoInvitation;
 import org.example.DAO.DaoInvitationImpl;
 import org.example.models.Invitation;
 import org.example.models.Member;
+import org.example.models.RoleOnSite;
 import org.example.models.Team;
 
 public class TeamService {
@@ -16,6 +17,7 @@ public class TeamService {
     }
     public void updateTeamInfo(Team team){
         DAOTeams db= new DAOTeamsImplPostgres();
+        System.out.println(team.toString());
         db.updateTeam(team.getName(),team.getDescription(),team.getId());
     }
     public void deleteTeam(int idTeam){
@@ -25,15 +27,16 @@ public class TeamService {
     public int createTeamByUser(Team team, int id_user)  {
         DAOTeams db= new DAOTeamsImplPostgres();
         int idTeam=db.createTeam(team.getName(),team.getDescription());
-        updateMemberRole(id_user,1);
+        updateMemberRole(id_user, RoleOnSite.ADMIN);
         updateMemberTeam(id_user,idTeam);
         return idTeam;
     }
 
-    public String createInvitation(int id_team,int id_role){
+    public String createInvitation(int id_team,int id_role,int id_inv){
         Invitation invitation =new Invitation();
         invitation.setTeam(id_team);
         invitation.setRole(id_role);
+        invitation.setIdInv(id_inv);
         invitation.setActive(true);
         invitation.setHashcode(Invitation.generatHashcode());
         return new DaoInvitationImpl().createInvite(invitation);
@@ -46,10 +49,12 @@ public class TeamService {
         if(member1.getTeam()==0) {
             DaoInvitation daoInv = new DaoInvitationImpl();
             Invitation invitation = daoInv.getInviteByHashCode(hashcode);
-            updateMemberTeam(member, invitation.getTeam());
-            updateMemberRole(member, invitation.getRole());
-            daoInv.changeStatusInvite(invitation.getId(), false);
-            daoInv.changeInvitedInInvite(invitation.getId(), member);
+            if(invitation.getIdInv()==member1.getId())
+            {
+                updateMemberTeam(member, invitation.getTeam());
+                updateMemberRole(member, invitation.getRole());
+                daoInv.changeStatusInvite(invitation.getId(), false);
+            }
         }
     };
 
