@@ -37,25 +37,34 @@ public class TeamService {
         invitation.setTeam(id_team);
         invitation.setRole(id_role);
         invitation.setIdInv(id_inv);
-        invitation.setActive(true);
+        invitation.setActive(false);
         invitation.setHashcode(Invitation.generatHashcode());
         return new DaoInvitationImpl().createInvite(invitation);
     };
 
-    public void inviteMember(String hashcode,int member){
+    public String inviteMember(String hashcode,int member){
         //check member on team
         DAOTeams daoTeams =new DAOTeamsImplPostgres();
         Member member1=daoTeams.getMemberWithRoleTeam(member);
+        Invitation invitation=null;
         if(member1.getTeam()==0) {
             DaoInvitation daoInv = new DaoInvitationImpl();
-            Invitation invitation = daoInv.getInviteByHashCode(hashcode);
-            if(invitation.getIdInv()==member1.getId())
+             invitation = daoInv.getInviteByHashCode(hashcode);
+            if(invitation!=null&&invitation.getIdInv()==member1.getId())
             {
                 updateMemberTeam(member, invitation.getTeam());
                 updateMemberRole(member, invitation.getRole());
-                daoInv.changeStatusInvite(invitation.getId(), false);
+                daoInv.changeStatusInvite(invitation.getId(), true);
             }
         }
+        Member member2=daoTeams.getMemberWithRoleTeam(member);
+        if(invitation==null){
+            return "cant get invit;";
+        }
+        if(member2.getTeam()!=invitation.getTeam()){
+            return "member not added;";
+        }
+        return "all is good;";
     };
 
     public void getInvitationById(int id){};
@@ -75,7 +84,7 @@ public class TeamService {
     public void kickMemberFromTeam(int idMember){
         DAOTeams db= new DAOTeamsImplPostgres();
         db.updateTeamMember(idMember,null);
-        db.updateRoleToMember(idMember,null);
+        db.updateRoleToMember(idMember,0);
     }
 
 }

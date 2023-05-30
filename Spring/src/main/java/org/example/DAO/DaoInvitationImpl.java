@@ -98,10 +98,10 @@ public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
             ResultSet resultSet = prst.executeQuery();
             while (resultSet.next()) {
                 res= new Invitation(resultSet.getInt("id"),
-                        resultSet.getString("hash_invite"),
-                        resultSet.getInt("id_team"),
+                        resultSet.getString("hash_code"),
+                        resultSet.getInt("id_team_id"),
                         resultSet.getInt("role"),
-                        resultSet.getBoolean("active")
+                        resultSet.getBoolean("accept")
                 );
             }
         } catch (SQLException e) {
@@ -128,10 +128,10 @@ public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
             ResultSet resultSet = prst.executeQuery();
             while (resultSet.next()) {
                 res= new Invitation(resultSet.getInt("id"),
-                        resultSet.getString("hash_invite"),
-                        resultSet.getInt("id_team"),
+                        resultSet.getString("hash_code"),
+                        resultSet.getInt("id_team_id"),
                         resultSet.getInt("role"),
-                        resultSet.getBoolean("active")
+                        resultSet.getBoolean("accept")
                 );
             }
         } catch (SQLException e) {

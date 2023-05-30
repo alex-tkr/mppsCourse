@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-@CrossOrigin(maxAge = 3600, allowCredentials = "false")
+
+//@CrossOrigin(origins = {"http://localhost"})
 @RestController
 @RequestMapping("/teams")
 public class MainController extends TokenFuncImpl{
@@ -116,15 +117,19 @@ public class MainController extends TokenFuncImpl{
         }
         return new HashMap<String, String>(){
             {
-                put("hashcode","you not admin of manager");
+                put("error","you not admin of manager");
             }
         };
 
     }
 
     @PostMapping("/invite/{hashcode}")
-    public void inviteMember(@PathVariable String hashcode){
-        new TeamService(). inviteMember(hashcode,getIdUserFromTokenInt(getToken2()));
+    public Map<String , String> inviteMember(@PathVariable String hashcode){
+        return new HashMap<String, String>(){
+            {
+                put("error",new TeamService(). inviteMember(hashcode,getIdUserFromTokenInt(getToken2())));
+            }
+        };
     }
 
     @DeleteMapping("/kikMember")

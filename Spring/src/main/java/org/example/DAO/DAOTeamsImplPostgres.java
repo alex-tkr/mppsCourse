@@ -151,7 +151,7 @@ public class DAOTeamsImplPostgres extends UtilsForCon implements DAOTeams{
         try {
             con = PostgresConnectionPool.getConnection();
             prst=con.prepareStatement(updateUserRole);
-            prst.setString(1,idRole==null?"":idRole.toString());
+            prst.setString(1,idRole==0?"":idRole+"");
             prst.setInt(2, idMember);
             prst.executeUpdate();
         } catch (SQLException e) {
