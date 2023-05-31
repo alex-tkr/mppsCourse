@@ -1,13 +1,10 @@
 package org.example.services;
 
-import org.example.DAO.DAOTeams;
-import org.example.DAO.DAOTeamsImplPostgres;
-import org.example.DAO.DaoInvitation;
-import org.example.DAO.DaoInvitationImpl;
-import org.example.models.Invitation;
-import org.example.models.Member;
-import org.example.models.RoleOnSite;
-import org.example.models.Team;
+import org.example.DAO.*;
+import org.example.models.*;
+import org.example.services.EmailSend.EmailSend;
+
+import java.util.List;
 
 public class TeamService {
 
@@ -87,4 +84,17 @@ public class TeamService {
         db.updateRoleToMember(idMember,0);
     }
 
+
+    public void sendEmailWithStatistic(int id_user,int id_project){
+        //take email to
+        String email=new DAOTeamsImplPostgres().getEmailOfMember(id_user);
+
+        //take info about statistic from DAO
+        List<TaskForAnalis> list=new DaoAnalisTaskOnProjectImpl().getTaskWithUser(id_project);
+        TaskAnalis tasks=new TaskAnalis(list);
+
+        //use this method->
+        new EmailSend().sendEmail(email,tasks.getAnalByDoneNotDoneTaskInHtmlTable(id_project));
+
+    }
 }

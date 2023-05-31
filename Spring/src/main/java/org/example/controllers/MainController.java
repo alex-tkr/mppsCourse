@@ -156,5 +156,19 @@ public class MainController extends TokenFuncImpl{
     }
 
 
+    @PostMapping("/statisticTasksEmail")
+    public void sendAnalOnEmail(@RequestBody Map<String,String> info){
+        if(info.get("id_project")!=null){
+            new TeamService().sendEmailWithStatistic(
+                    getIdUserFromTokenInt(getToken2()),
+                    Integer.parseInt(info.get("id_project")));
+        }
+    }
+
+
 
 }
+
+
+
+
