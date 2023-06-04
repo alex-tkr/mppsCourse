@@ -1,17 +1,17 @@
 package org.example.controllers;
 
 import org.example.DAO.DAOTeamsImplPostgres;
-import org.example.controllers.JWTParse.User.CustomAuthenticationProvider;
-import org.example.controllers.JWTParse.User.CustomAuthenticationToken;
+import org.example.DAO.DaoAnalisTaskOnProjectImpl;
 import org.example.models.Member;
 import org.example.models.RoleOnSite;
+import org.example.models.Custom.TaskForAnalis;
 import org.example.models.Team;
 import org.example.services.TeamService;
 import org.example.services.TelegramBot.BotConfig;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //@CrossOrigin(origins = {"http://localhost"})
@@ -163,6 +163,24 @@ public class MainController extends TokenFuncImpl{
                     getIdUserFromTokenInt(getToken2()),
                     Integer.parseInt(info.get("id_project")));
         }
+    }
+    @PostMapping("/statisticTasksEmailTest")
+    public Map<String , String> sendAnalOnEmailTest(@RequestBody Map<String,String> info){
+        List<TaskForAnalis> list=new DaoAnalisTaskOnProjectImpl().getTaskWithUser(3);
+        return new HashMap<String, String>(){
+            {
+                put("size",list.size()+"");
+            }
+        };
+    }
+
+    @PostMapping("/sendEmailAppointed")
+    public void sendEmailAppointed(@RequestBody Map<String,String> info){
+        if(info.get("id_task")!=null){
+            new TeamService().sendEmailAppoined(
+                    Integer.parseInt(info.get("id_task")));
+        }
+
     }
 
 

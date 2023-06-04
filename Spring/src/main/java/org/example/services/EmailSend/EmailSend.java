@@ -8,10 +8,10 @@ public class EmailSend {
     private String addresFrom="taskhub.sup@outlook.com";
     final String password = "taskhub123";
 
-    public void sendEmail(String addresTo,String htmlBody){
+    public void sendEmail(String addresTo,String subject,String htmlBody){
         MailMessage message = new MailMessage();
      // Set subject of the message, body and sender information
-        message.setSubject("Task Hub analysis tasks");
+        message.setSubject(subject);
         message.setHtmlBody(htmlBody);
         message.setFrom(new MailAddress(addresFrom, "Task Hub", false));
 

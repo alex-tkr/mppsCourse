@@ -19,6 +19,7 @@ public class DAOTeamsImplPostgres extends UtilsForCon implements DAOTeams{
     private final String updateUserTeam="Update public.\"user_user\" set team_id=? WHERE id=?";
     private final String updateTeam="Update public.\"API_team\" set name=?,description=? WHERE id=?";
     private final String getMemberWithRoleTeam="Select role,team_id FROM public.\"user_user\" WHERE id=?";
+    private final String getMemberWithUsername="Select username FROM public.\"user_user\" WHERE id=?";
     private String getEmailOfMember="Select email FROM public.\"user_user\" WHERE id=?";;
 
     @Override
@@ -194,6 +195,31 @@ public class DAOTeamsImplPostgres extends UtilsForCon implements DAOTeams{
         return res;
     }
 
+    @Override
+    public Member getMemberWithName(int id_member) {
+        Member res= null;
+        Connection con= null;
+        PreparedStatement prst=null;
+        try {
+            con = PostgresConnectionPool.getConnection();
+            prst=con.prepareStatement(getMemberWithUsername);
+            prst.setInt(1,id_member);
+            ResultSet resultSet = prst.executeQuery();
+            while (resultSet.next()) {
+                res= new Member();
+                res.setId(id_member);
+                res.setUsername(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+        } finally {
+            try {
+                closePrepareState(prst);
+                closeCon(con);
+            } catch (SQLException e) {
+            }
+        }
+        return res;
+    }
     @Override
     public String getEmailOfMember(int id_member) {
         String res= "";

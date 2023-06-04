@@ -16,7 +16,7 @@ public interface DAOTeams {
      void updateTeamMember(int idMember, Integer idTeam);
      void updateRoleToMember(int idMember, Integer idRole);
      Member getMemberWithRoleTeam(int id_member);
-
+      Member getMemberWithName(int id_member);
      String getEmailOfMember(int id_member);
 
 

@@ -2,7 +2,10 @@ package org.example.services;
 
 import org.example.DAO.*;
 import org.example.models.*;
+import org.example.models.Custom.TaskForAnalis;
 import org.example.services.EmailSend.EmailSend;
+import org.example.services.EmailSend.EmailSendNotification;
+
 
 import java.util.List;
 
@@ -85,6 +88,44 @@ public class TeamService {
     }
 
 
+    public void sendEmailAppoined(int id_task){
+        //get task
+        TaskAndProjectForEmail task=new DaoAnalisTaskOnProjectImpl().getTaskWithProjectForEmail(id_task);
+        //get address to
+        String email=new DAOTeamsImplPostgres().getEmailOfMember(task.getAccountable_id());
+        //send email
+        new EmailSend().sendEmail(
+                email,
+                "HEY MAN",
+                new EmailSendNotification().ConvertInMessageYouAssigned(
+                        task.getProject_name(),
+                        task.getTitle(),
+                        task.getUpdate_at()
+                )
+        );
+    }
+    public void sendEmailTaskUpdate(int id_task,
+                                    String old_status,
+                                    String new_status,int id_user){
+        TaskAndProjectForEmail task=new DaoAnalisTaskOnProjectImpl().getTaskWithProjectForEmail(id_task);
+        if(task.getUpdate_user_id()!=id_user){
+            String email=new DAOTeamsImplPostgres().getEmailOfMember(task.getAccountable_id());
+            Member member=new DAOTeamsImplPostgres().getMemberWithName(task.getUpdate_user_id());
+            //send email
+            new EmailSend().sendEmail(
+                    email,
+                    "HEY MAN",
+                    new EmailSendNotification().ConvertInMessageTaskChanged(
+                            task.getProject_name(),
+                            task.getTitle(),
+                            task.getUpdate_at(),
+                            old_status,
+                            new_status,
+                            member.getUsername()
+                    )
+            );
+        }
+    }
     public void sendEmailWithStatistic(int id_user,int id_project){
         //take email to
         String email=new DAOTeamsImplPostgres().getEmailOfMember(id_user);
@@ -94,7 +135,7 @@ public class TeamService {
         TaskAnalis tasks=new TaskAnalis(list);
 
         //use this method->
-        new EmailSend().sendEmail(email,tasks.getAnalByDoneNotDoneTaskInHtmlTable(id_project));
+        new EmailSend().sendEmail(email,"Task Hub analysis tasks",tasks.getAnalByDoneNotDoneTaskInHtmlTable(id_project));
 
     }
 }
