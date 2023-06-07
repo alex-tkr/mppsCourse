@@ -1,16 +1,40 @@
 package org.example.services;
 
 import org.example.models.Custom.TaskForAnalis;
+import org.example.services.Diagrams.PieChart;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TaskAnalis {
     private List<TaskForAnalis> list;
+    private String  projectName;
 
-    private String ConvertInTableHtmlTaskAndUserAndStatus(List<TaskForAnalis> list){
+
+    private Map<String,Integer> convertInMapTaskAndUserAndStatus(List<TaskForAnalis> list){
+        Map<String,Integer> result=new HashMap<>();
+        for(TaskForAnalis e:list){
+            String status;
+            if(e.getComleted()){
+                status="done";
+            }else{
+                status="in work";
+            }
+           String name= e.getLast_name()+" "+e.getFirst_name()+":"+status;
+           if(result.containsKey(name)==false){
+               result.put(name,1);
+           }else{
+              int a= result.get(name);
+              result.remove(name);
+              result.put(name,a+1);
+           }
+        }
+
+
+        return result;
+    }
+    private String convertInTableHtmlTaskAndUserAndStatus(List<TaskForAnalis> list){
         String result="";
         result+="<table>";
         result+="<tr>" +
@@ -34,13 +58,33 @@ public class TaskAnalis {
     }
 
     public String getAnalByDoneNotDoneTaskInHtmlTable(int id_project){
-        String res="<h1>Tasks</h1>";
+        String res="<h1>Tasks for "+projectName+"</h1>";
         List<TaskForAnalis> list1= new ArrayList<>(list);
         List<TaskForAnalis> result = list1.stream()
                 .filter(e -> e.getProject_id()==id_project)
                 .sorted(new TaskComparatorByStatus())
                 .collect(Collectors.toList());
-        res+=ConvertInTableHtmlTaskAndUserAndStatus(result);
+        res+=convertInTableHtmlTaskAndUserAndStatus(result);
+        return res;
+    }
+
+
+    public String createDiagram(){
+        try {
+            new PieChart(projectName).createPngFile(
+                    convertInMapTaskAndUserAndStatus(list),
+                    projectName
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        new PieChart(projectName,convertInMapTaskAndUserAndStatus(list));
+        return projectName+".jpg";
+    }
+    public String getHeaderForProject(int id_project)  {
+        String res="<h1>Tasks for "+projectName+"</h1>";
+
+        //res+="<img src=\"/"+projectName+".jpeg\">";
         return res;
     }
 
@@ -48,7 +92,13 @@ public class TaskAnalis {
     }
 
 
+    public String getProjectName() {
+        return projectName;
+    }
 
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 
     public TaskAnalis(List<TaskForAnalis> list) {
         this.list = list;

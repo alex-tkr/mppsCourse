@@ -129,13 +129,33 @@ public class TeamService {
     public void sendEmailWithStatistic(int id_user,int id_project){
         //take email to
         String email=new DAOTeamsImplPostgres().getEmailOfMember(id_user);
-
         //take info about statistic from DAO
         List<TaskForAnalis> list=new DaoAnalisTaskOnProjectImpl().getTaskWithUser(id_project);
+        Project project =new DaoAnalisTaskOnProjectImpl().getProjectById(id_project);
         TaskAnalis tasks=new TaskAnalis(list);
-
+        tasks.setProjectName(project.getName());
         //use this method->
         new EmailSend().sendEmail(email,"Task Hub analysis tasks",tasks.getAnalByDoneNotDoneTaskInHtmlTable(id_project));
+    }
+
+    public void sendEmailWithStatisticInDiagram(int id_user,int id_project) {
+        //take email to
+        String email = new DAOTeamsImplPostgres().getEmailOfMember(id_user);
+        //take info about statistic from DAO
+        List<TaskForAnalis> list = new DaoAnalisTaskOnProjectImpl().getTaskWithUser(id_project);
+        Project project = new DaoAnalisTaskOnProjectImpl().getProjectById(id_project);
+        TaskAnalis tasks = new TaskAnalis(list);
+        tasks.setProjectName(project.getName());
+        //use this method->
+        System.out.println(email);
+        tasks.createDiagram();
+
+        new EmailSend().sendEmailWithImage2(
+                email,
+                "Task Hub analysis tasks",
+                tasks.getHeaderForProject(id_project),
+                tasks.createDiagram());
+    }
 
     }
-}
+

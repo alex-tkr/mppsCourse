@@ -1,17 +1,13 @@
 package org.example.controllers;
 
 import org.example.DAO.DAOTeamsImplPostgres;
-import org.example.DAO.DaoAnalisTaskOnProjectImpl;
 import org.example.models.Member;
 import org.example.models.RoleOnSite;
-import org.example.models.Custom.TaskForAnalis;
 import org.example.models.Team;
 import org.example.services.TeamService;
-import org.example.services.TelegramBot.BotConfig;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 //@CrossOrigin(origins = {"http://localhost"})
@@ -23,8 +19,6 @@ public class MainController extends TokenFuncImpl{
     public Map<String , String> Test(){
         System.out.println("toke 2"+getToken2());
         System.out.println("user "+getIdUserFromToken(getToken2()));
-        // https://api.telegram.org/botTOKEN/sendMessage?chat_id=CHAT_ID&text=TEXT
-        // return "redirect:/getUser.do";
         return new HashMap<String, String>(){
             {
                 put("id",5+"");
@@ -32,12 +26,6 @@ public class MainController extends TokenFuncImpl{
         };
     }
 
-    @PostMapping("/test_telegram")
-    public String TestTelegram(BotConfig botConfig,@RequestBody Map<String,String> info){
-       String chatId= info.get("chatId");
-       System.out.println(botConfig.getToken());
-        return "redirect:https://api.telegram.org/"+botConfig.getToken()+"/sendMessage?chat_id="+chatId+"&text=TEXT ";
-    }
 
     @GetMapping("/{id}")
     public Map<String , String> getTeam(@PathVariable int id){
@@ -164,15 +152,16 @@ public class MainController extends TokenFuncImpl{
                     Integer.parseInt(info.get("id_project")));
         }
     }
-    @PostMapping("/statisticTasksEmailTest")
-    public Map<String , String> sendAnalOnEmailTest(@RequestBody Map<String,String> info){
-        List<TaskForAnalis> list=new DaoAnalisTaskOnProjectImpl().getTaskWithUser(3);
-        return new HashMap<String, String>(){
-            {
-                put("size",list.size()+"");
-            }
-        };
+
+    @PostMapping("/statisticTasksEmailDiagram")
+    public void sendAnalOnEmailDiagram(@RequestBody Map<String,String> info){
+        if(info.get("id_project")!=null){
+            new TeamService().sendEmailWithStatisticInDiagram(
+                    getIdUserFromTokenInt(getToken2()),
+                    Integer.parseInt(info.get("id_project")));
+        }
     }
+
 
     @PostMapping("/sendEmailAppointed")
     public void sendEmailAppointed(@RequestBody Map<String,String> info){
@@ -180,7 +169,17 @@ public class MainController extends TokenFuncImpl{
             new TeamService().sendEmailAppoined(
                     Integer.parseInt(info.get("id_task")));
         }
-
+    }
+    @PostMapping("/sendEmailChangeStatus")
+    public void sendEmailChangeStatus(@RequestBody Map<String,String> info){
+        if(info.get("id_task")!=null){
+            new TeamService().sendEmailTaskUpdate(
+                    Integer.parseInt(info.get("id_task")),
+                    info.get("old_status"),
+                    info.get("new_status"),
+                    getIdUserFromTokenInt(getToken2())
+                    );
+        }
     }
 
 

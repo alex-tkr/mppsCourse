@@ -2,6 +2,7 @@ package org.example.DAO;
 
 import org.example.DBConnection.PostgresConnectionPool;
 import org.example.models.Custom.TaskForAnalis;
+import org.example.models.Project;
 import org.example.models.TaskAndProjectForEmail;
 
 import java.sql.Connection;
@@ -18,11 +19,15 @@ public class DaoAnalisTaskOnProjectImpl extends UtilsForCon implements DaoAnalis
             "from public.project_task pt\n" +
             "inner join project_project pp on pp.id = pt.project_id\n" +
             "where pt.id=?";
-    String getTaskWithUser="Select pt.id,title,priority,project_id,update_user_id,status,uu.first_name,uu.last_name\n" +
+    String getTaskWithUser="Select pt.id,title,priority,project_id,update_user_id,status,completed,uu.first_name,uu.last_name\n" +
             "from public.\"project_task\" pt\n" +
             "inner join \"project_project\" pp on pt.project_id = pp.id\n" +
             "inner join \"user_user\" uu on pt.accountable_id = uu.id\n" +
             "where project_id=?";
+    private String getTaskById="Select pp.name,pp.id,pp.description,pp.created_at,pp.updated_at,pp.owner_id,pp.team_id " +
+            "from public.project_project pp\n" +
+            "where pp.id=?";;
+
 
     @Override
     public List<TaskForAnalis> getTaskWithUser(int project_id) {
@@ -42,6 +47,7 @@ public class DaoAnalisTaskOnProjectImpl extends UtilsForCon implements DaoAnalis
                 tmp.setPriority(resultSet.getString("priority"));
                 tmp.setProject_id(resultSet.getInt("project_id"));
                 tmp.setUpdate_user_id(resultSet.getInt("update_user_id"));
+                tmp.setComleted(resultSet.getBoolean("completed"));
                 tmp.setStatus(resultSet.getString("status"));
                 tmp.setFirst_name(resultSet.getString("first_name"));
                 tmp.setLast_name(resultSet.getString("last_name"));
@@ -90,5 +96,37 @@ public class DaoAnalisTaskOnProjectImpl extends UtilsForCon implements DaoAnalis
             }
         }
         return tmp;
+    }
+
+    @Override
+    public Project getProjectById(int project_id) {
+        Project res=null;
+        Connection con= null;
+        PreparedStatement prst=null;
+        try {
+            con = PostgresConnectionPool.getConnection();
+            prst=con.prepareStatement(getTaskById);
+            prst.setInt(1,project_id);
+            ResultSet resultSet = prst.executeQuery();
+            while (resultSet.next()) {
+                res=new Project();
+                res.setId(resultSet.getInt("id"));
+                res.setName(resultSet.getString("name"));
+                res.setDescription(resultSet.getString("description"));
+                res.setCreated_at(resultSet.getString("created_at"));
+                res.setUpdate_at(resultSet.getString("updated_at"));
+                res.setOwner_id(resultSet.getInt("owner_id"));
+                res.setTeam_id(resultSet.getInt("team_id"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                closePrepareState(prst);
+                closeCon(con);
+            } catch (SQLException e) {
+            }
+        }
+        return res;
     }
 }

@@ -1,7 +1,5 @@
 package org.example.models.Custom;
 
-import java.util.Comparator;
-
 public class TaskForAnalis {
     int id_task;
     String title;
@@ -12,6 +10,7 @@ public class TaskForAnalis {
     Boolean comleted;
     String last_name;
     String first_name;
+
 
     public int getId_task() {
         return id_task;
