@@ -2,10 +2,8 @@ package org.example.DAO;
 
 import org.example.DBConnection.PostgresConnectionPool;
 import org.example.models.Invitation;
-import org.example.models.Team;
 
 import java.sql.*;
-import java.time.OffsetDateTime;
 
 public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
     private final String createInvite="INSERT INTO public.\"project_invite_team\" (id_team_id,hash_code,role,accept,id_inv_id) VALUES (?,?,?,?,?) RETURNING hash_code";
@@ -97,12 +95,13 @@ public class DaoInvitationImpl extends UtilsForCon implements DaoInvitation{
             prst.setString(1,hashcode);
             ResultSet resultSet = prst.executeQuery();
             while (resultSet.next()) {
-                res= new Invitation(resultSet.getInt("id"),
-                        resultSet.getString("hash_code"),
-                        resultSet.getInt("id_team_id"),
-                        resultSet.getInt("role"),
-                        resultSet.getBoolean("accept")
-                );
+                res= new Invitation() ;
+                res.setId(resultSet.getInt("id"));
+                res.setHashcode(resultSet.getString("hash_code"));
+                res.setTeam(resultSet.getInt("id_team_id"));
+                res.setRole( resultSet.getInt("role"));
+                res.setActive( resultSet.getBoolean("accept"));
+                 res.setIdInv(resultSet.getInt("id_inv_id"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
